@@ -4,6 +4,7 @@ import com.auto.service.WebControllerService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.*;
@@ -26,7 +27,7 @@ public class WebControllerServiceImpl implements WebControllerService {
     private static final String YAHOO_XPATH_LOGIN = "//*[@id=\"uh-signin\"]";
     private static final String YAHOO_XPATH_USERNAME = "//*[@id=\"login-username\"]";
     private static final String YAHOO_XPATH_PASSWORD = "//*[@id=\"login-passwd\"]";
-    private static final String YAHOO_XPATH_NEXT = "//*[@id=\"login-signin\"]";
+    private static final String YAHOO_XPATH_NEXT = "//input[@id='login-signin']";
     private static final String YAHOO_XPATH_LOGOUT = "//*[@id=\"uh-signout\"]";
 
 
@@ -59,17 +60,20 @@ public class WebControllerServiceImpl implements WebControllerService {
 
         System.out.println("========Login account : " + user);
         driver.get(YAHOO_WEB_URL);
-//        driver.manage().window().maximize();
 
         //Login Yahoo
         System.out.println("========Start login to Yahoo");
         driver.findElement(By.xpath(YAHOO_XPATH_LOGIN)).click();
         driver.findElement(By.xpath(YAHOO_XPATH_USERNAME)).sendKeys(user);
-        driver.findElement(By.xpath(YAHOO_XPATH_NEXT)).click();
+        WebElement webElement = driver.findElement(By.xpath(YAHOO_XPATH_NEXT));
+        webElement.click();
         driver.findElement(By.xpath(YAHOO_XPATH_PASSWORD)).sendKeys(password);
-        driver.findElement(By.xpath(YAHOO_XPATH_NEXT)).click();
+        webElement = driver.findElement(By.xpath(YAHOO_XPATH_NEXT));
+        Thread.sleep(2000);
+        webElement.click();
         Thread.sleep(5000);
         System.out.println("========Finish login to Yahoo");
+        driver.manage().window().maximize();
 
 
         //Go to Web

@@ -48,7 +48,7 @@ public class AutoServiceImpl implements AutoService {
                 System.out.println("Start Hostspost Success!");
 
                 System.out.println("Start Login web");
-//                webControllerService.startAutoLogin(accountInfo[0], accountInfo[1]);
+                webControllerService.startAutoLogin(accountInfo[0], accountInfo[1]);
                 System.out.println("Login web success!");
 
                 Thread.sleep(3000);
