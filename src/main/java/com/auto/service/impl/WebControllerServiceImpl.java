@@ -77,17 +77,19 @@ public class WebControllerServiceImpl implements WebControllerService {
 
 
 //        //Go to Web
-//        System.out.println("========Start login to web");
-//        driver.get(Constants.WEB_URL);
-//        driver.findElement(By.xpath(XPATH_LOGIN)).click();
-//        driver.findElement(By.xpath(XPATH_LOGIN_BUTTON)).click();
-//        System.out.println("========Login to web success");
-//        driver.get(Constants.WEB_URL);
-//        Thread.sleep(Constants.sleepingDuration *5);
-//        driver.findElement(By.xpath(XPATH_ACCOUNT_BUTTON)).click();
-//        driver.findElement(By.xpath(XPATH_LOGOUT_BUTTON)).click();
-//        System.out.println("========Logout web success");
-//        Thread.sleep(Constants.sleepingDuration * 5);
+        if(!Constants.RUN_TEST){
+            System.out.println("========Start login to web");
+            driver.get(Constants.WEB_URL);
+            driver.findElement(By.xpath(XPATH_LOGIN)).click();
+            driver.findElement(By.xpath(XPATH_LOGIN_BUTTON)).click();
+            System.out.println("========Login to web success");
+            driver.get(Constants.WEB_URL);
+            Thread.sleep(Constants.sleepingDuration *5);
+            driver.findElement(By.xpath(XPATH_ACCOUNT_BUTTON)).click();
+            driver.findElement(By.xpath(XPATH_LOGOUT_BUTTON)).click();
+            System.out.println("========Logout web success");
+            Thread.sleep(Constants.sleepingDuration * 5);
+        }
 
         //Logout Yahoo
         System.out.println("========Start logout to yahoo");

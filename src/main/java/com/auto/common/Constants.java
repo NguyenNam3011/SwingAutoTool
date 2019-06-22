@@ -13,5 +13,6 @@ public class Constants {
     public static String LOG_DIR = "./log";
     public static long sleepingDuration = 1000;
     public static int CLEANING_DURATION = 5;
+    public static boolean RUN_TEST = false;
 
 }

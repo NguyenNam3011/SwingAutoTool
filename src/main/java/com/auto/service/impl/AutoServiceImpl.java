@@ -15,7 +15,7 @@ import java.net.MalformedURLException;
 public class AutoServiceImpl implements AutoService {
 
 
-    public void autoLogin(String path) {
+    public String autoLogin(String path) {
         CCleanerService cCleanerService = new CCleanerServiceImpl();
         HostPostShieldService hostPostShieldService = new HostPostShieldServiceImpl();
         WebControllerService webControllerService = new WebControllerServiceImpl();
@@ -29,14 +29,16 @@ public class AutoServiceImpl implements AutoService {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(file.getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            return "Start driver error: " + e.getMessage();
         }
         try {
-
             BufferedReader objReader = new BufferedReader(new FileReader(path));
             String strCurrentLine;
-            hostPostShieldService.runHostPostShield(Constants.HSSCP_PATH);
+            String runHostPostResult = hostPostShieldService.runHostPostShield(Constants.HSSCP_PATH);
+            if(!Constants.SUCCESS.equals(runHostPostResult)){
+                return "runHostPostResult error: " + runHostPostResult;
+            }
             while ((strCurrentLine = objReader.readLine()) != null) {
                 String[] accountInfo = strCurrentLine.split("\\t");
                 System.out.println("Start Hostspost!");
@@ -63,15 +65,17 @@ public class AutoServiceImpl implements AutoService {
                 }
                 Thread.sleep(Constants.sleepingDuration);
             }
-            hostPostShieldService.closeHostPostShield();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            String closeHostPostResult = hostPostShieldService.closeHostPostShield();
+            if(!Constants.SUCCESS.equals(closeHostPostResult)){
+                return "closeHostPostResult error: " + closeHostPostResult;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
+            return "Process fail: " +  e.getMessage();
         }finally {
             p.destroy();
         }
+        return Constants.SUCCESS;
     }
 }

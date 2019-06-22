@@ -40,28 +40,29 @@ public class SwingControlDemo {
     }
 
     private static void initConfigData() {
-        try  {
+        try {
             FileInputStream inputStream = new FileInputStream(CONFIG_PROPERTIES);
             Properties prop = new Properties();
             prop.load(inputStream);
             // get the property value and print it out
-            System.out.println(prop.getProperty("ccleaner.path"));
-            System.out.println(prop.getProperty("ccleaner.duration"));
-            System.out.println(prop.getProperty("hsscp.path"));
-            System.out.println(prop.getProperty("waiting.time"));
-            System.out.println(prop.getProperty("log.dir"));
-            System.out.println(prop.getProperty("sleepingDuration"));
+            Constants.CCLEANER_PATH = prop.getProperty("ccleaner.path");
+            Constants.CLEANING_DURATION = Integer.valueOf(prop.getProperty("ccleaner.duration"));
+            Constants.HSSCP_PATH = prop.getProperty("hsscp.path");
+            Constants.WAITING_TIME = Integer.valueOf(prop.getProperty("waiting.time"));
+            Constants.LOG_DIR = prop.getProperty("log.dir");
+            Constants.sleepingDuration = Long.valueOf(prop.getProperty("sleepingDuration"));
+            Constants.RUN_TEST = Boolean.valueOf(prop.getProperty("run.test"));
         } catch (FileNotFoundException e) {
             try (OutputStream output = new FileOutputStream(CONFIG_PROPERTIES)) {
                 Properties prop = new Properties();
                 // set the properties value
                 prop.setProperty("ccleaner.path", Constants.CCLEANER_PATH);
-                prop.setProperty("ccleaner.duration",String.valueOf( Constants.CLEANING_DURATION));
+                prop.setProperty("ccleaner.duration", String.valueOf(Constants.CLEANING_DURATION));
                 prop.setProperty("hsscp.path", Constants.HSSCP_PATH);
-                prop.setProperty("waiting.time",String.valueOf( Constants.WAITING_TIME));
+                prop.setProperty("waiting.time", String.valueOf(Constants.WAITING_TIME));
                 prop.setProperty("log.dir", Constants.LOG_DIR);
-                prop.setProperty("sleepingDuration", String.valueOf( Constants.sleepingDuration));
-
+                prop.setProperty("sleepingDuration", String.valueOf(Constants.sleepingDuration));
+                prop.setProperty("run.test", String.valueOf(Constants.RUN_TEST));
                 // save properties to project root folder
                 prop.store(output, null);
 
@@ -70,7 +71,7 @@ public class SwingControlDemo {
             } catch (IOException io) {
                 io.printStackTrace();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -78,6 +79,7 @@ public class SwingControlDemo {
     private void visibleMainFrame() {
         mainFrame.setVisible(true);
     }
+
     private void prepareGUI() {
         mainFrame = new JFrame("Swing Auto Tool");
         mainFrame.setSize(400, 200);
@@ -103,7 +105,7 @@ public class SwingControlDemo {
     }
 
     private void showFileChooserDemo() {
-        headerLabel.setText("Please choose accounts file and click Run to start");
+        headerLabel.setText("Please choose [accounts].txt file and click Run to start");
 
         final JFileChooser fileDialog = new JFileChooser();
         showFileDialogButton = new JButton("Select File");
@@ -135,13 +137,18 @@ public class SwingControlDemo {
                 runButton.setEnabled(false);
 
                 AutoService autoService = new AutoServiceImpl();
-                if (StringUtils.isNotBlank(filePath)) {
-                    autoService.autoLogin(filePath);
+                if (StringUtils.isNotBlank(filePath) && filePath.endsWith(".txt")) {
+                    String runResult = autoService.autoLogin(filePath);
+                    if(Constants.SUCCESS.equals(runResult)){
+                        showAlert("Run success...!", "Finish", JOptionPane.INFORMATION_MESSAGE);
+                    }else {
+                        showAlert("Run success fail... : ", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+
+                }else {
+                    showAlert("filePath incorrect: " + filePath, "Error", JOptionPane.ERROR_MESSAGE);
                 }
-//             JOptionPane.showMessageDialog(mainFrame,
-//                     "WARNING.",
-//                     "Warning",
-//                     JOptionPane.WARNING_MESSAGE);
+
                 runButton.setEnabled(true);
             }
 
@@ -151,6 +158,12 @@ public class SwingControlDemo {
         controlPanel.add(runButton);
     }
 
+    private void showAlert(String message, String title, int type) {
+        JOptionPane.showMessageDialog(mainFrame,
+                message,
+                title,
+                type);
+    }
 
 
 }
