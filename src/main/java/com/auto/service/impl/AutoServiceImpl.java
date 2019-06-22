@@ -36,7 +36,7 @@ public class AutoServiceImpl implements AutoService {
 
             BufferedReader objReader = new BufferedReader(new FileReader(path));
             String strCurrentLine;
-            hostPostShieldService.runHostPostShield("C:\\Program Files (x86)\\Hotspot Shield\\bin\\hsscp.exe");
+            hostPostShieldService.runHostPostShield(Constants.HSSCP_PATH);
             while ((strCurrentLine = objReader.readLine()) != null) {
                 String[] accountInfo = strCurrentLine.split("\\t");
                 System.out.println("Start Hostspost!");
@@ -51,17 +51,17 @@ public class AutoServiceImpl implements AutoService {
                 webControllerService.startAutoLogin(accountInfo[0], accountInfo[1]);
                 System.out.println("Login web success!");
 
-                Thread.sleep(3000);
+                Thread.sleep(Constants.sleepingDuration);
                 //TODO web handler
                 if (!Constants.SUCCESS.equals(hostPostShieldService.stopHostPostShield())) {
                     System.out.println("Stop Hostspost fail!");
                     continue;
                 }
                 System.out.println("Stop Hostspost Success!");
-                if (!Constants.SUCCESS.equals(cCleanerService.autoCCleaner(5, "C:\\Program Files\\CCleaner\\CCleaner.exe"))) {
+                if (!Constants.SUCCESS.equals(cCleanerService.autoCCleaner(Constants.CLEANING_DURATION, Constants.CCLEANER_PATH))) {
                     break;
                 }
-                Thread.sleep(1000);
+                Thread.sleep(Constants.sleepingDuration);
             }
             hostPostShieldService.closeHostPostShield();
         } catch (MalformedURLException e) {

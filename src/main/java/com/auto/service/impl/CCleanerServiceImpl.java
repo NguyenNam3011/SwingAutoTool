@@ -37,7 +37,7 @@ public class CCleanerServiceImpl implements CCleanerService {
                 return Constants.FAIL;
             }
             elementCusClean.click();
-            Thread.sleep(2000);
+            Thread.sleep(Constants.sleepingDuration);
             WebElement cleanElement = null;
             while (time < Constants.WAITING_TIME){
                 try {

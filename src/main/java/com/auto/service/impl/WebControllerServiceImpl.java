@@ -1,11 +1,13 @@
 package com.auto.service.impl;
 
+import com.auto.common.Constants;
 import com.auto.service.WebControllerService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -13,10 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 public class WebControllerServiceImpl implements WebControllerService {
 
-    private static final String ACCOUNT_FILE_URL = "config/account/yahoo_account.txt";
-    private static final String LOG_DIR = "D:/auto_log/";
-
-    private static final String WEB_URL = "http://kynu.net/";
     private static final String XPATH_LOGIN = "/html/body/div[1]/div[1]/div/div/div/span/span/a[1]/span";
     private static final String XPATH_LOGIN_BUTTON = "//*[@id=\"y_auth\"]";
     private static final String XPATH_ACCOUNT_BUTTON = "/html/body/div[1]/div[1]/div/div/div/div";
@@ -27,8 +25,9 @@ public class WebControllerServiceImpl implements WebControllerService {
     private static final String YAHOO_XPATH_LOGIN = "//*[@id=\"uh-signin\"]";
     private static final String YAHOO_XPATH_USERNAME = "//*[@id=\"login-username\"]";
     private static final String YAHOO_XPATH_PASSWORD = "//*[@id=\"login-passwd\"]";
-    private static final String YAHOO_XPATH_NEXT = "//input[@id='login-signin']";
+    private static final String YAHOO_XPATH_NEXT = "//*[@id=\"login-signin\"]";
     private static final String YAHOO_XPATH_LOGOUT = "//*[@id=\"uh-signout\"]";
+    private static final String YAHOO_XPATH_AVATAR = "//*[@id=\"uh-avatar\"]";
 
 
     public WebControllerServiceImpl() {
@@ -40,10 +39,10 @@ public class WebControllerServiceImpl implements WebControllerService {
     @Override
     public void startAutoLogin(String username, String password) throws IOException {
         ClassLoader classLoader = new WebControllerServiceImpl().getClass().getClassLoader();
+        ChromeOptions options = new ChromeOptions();
+        options.addExtensions(new File(classLoader.getResource("config/driver/Adblock-Plus-free-ad-blocker_v3.5.2.crx").getPath()));
 
-        BufferedReader objReader = new BufferedReader(new FileReader(classLoader.getResource(ACCOUNT_FILE_URL).getPath()));
-        String strCurrentLine;
-        WebDriver driver = new ChromeDriver();
+        WebDriver driver = new ChromeDriver(options);
         try {
             loginWeb(driver, username, password);
             writeLog(username + " login success______!");
@@ -52,6 +51,7 @@ public class WebControllerServiceImpl implements WebControllerService {
             writeLog(username + " login fail______!");
         } finally {
             driver.close();
+            driver.quit();
         }
     }
 
@@ -69,32 +69,35 @@ public class WebControllerServiceImpl implements WebControllerService {
         webElement.click();
         driver.findElement(By.xpath(YAHOO_XPATH_PASSWORD)).sendKeys(password);
         webElement = driver.findElement(By.xpath(YAHOO_XPATH_NEXT));
-        Thread.sleep(2000);
+        Thread.sleep(Constants.sleepingDuration);
         webElement.click();
-        Thread.sleep(5000);
+        Thread.sleep(Constants.sleepingDuration);
         System.out.println("========Finish login to Yahoo");
         driver.manage().window().maximize();
 
 
-        //Go to Web
-        System.out.println("========Start login to web");
-        driver.get(WEB_URL);
-        driver.findElement(By.xpath(XPATH_LOGIN)).click();
-        driver.findElement(By.xpath(XPATH_LOGIN_BUTTON)).click();
-        System.out.println("========Login to web success");
-        driver.get(WEB_URL);
-        Thread.sleep(5000);
-        driver.findElement(By.xpath(XPATH_ACCOUNT_BUTTON)).click();
-        driver.findElement(By.xpath(XPATH_LOGOUT_BUTTON)).click();
-        System.out.println("========Logout web success");
-        Thread.sleep(5000);
+//        //Go to Web
+//        System.out.println("========Start login to web");
+//        driver.get(Constants.WEB_URL);
+//        driver.findElement(By.xpath(XPATH_LOGIN)).click();
+//        driver.findElement(By.xpath(XPATH_LOGIN_BUTTON)).click();
+//        System.out.println("========Login to web success");
+//        driver.get(Constants.WEB_URL);
+//        Thread.sleep(Constants.sleepingDuration *5);
+//        driver.findElement(By.xpath(XPATH_ACCOUNT_BUTTON)).click();
+//        driver.findElement(By.xpath(XPATH_LOGOUT_BUTTON)).click();
+//        System.out.println("========Logout web success");
+//        Thread.sleep(Constants.sleepingDuration * 5);
 
         //Logout Yahoo
         System.out.println("========Start logout to yahoo");
         driver.get(YAHOO_WEB_URL);
-        driver.findElement(By.id("uh-profile")).click();
+        Thread.sleep(Constants.sleepingDuration);
+        driver.findElement(By.xpath(YAHOO_XPATH_AVATAR)).click();
+        Thread.sleep(Constants.sleepingDuration);
         driver.findElement(By.xpath(YAHOO_XPATH_LOGOUT)).click();
-        Thread.sleep(5000);
+
+        Thread.sleep(Constants.sleepingDuration);
         System.out.println("========Finish logout to yahoo");
         System.out.printf("========Login account : %s Finished!", user);
         System.out.printf("====================================");
@@ -103,12 +106,19 @@ public class WebControllerServiceImpl implements WebControllerService {
     private void writeLog(String log) {
         LocalDate localDate = LocalDate.now();
         try {
-            File file = new File(LOG_DIR + localDate);
+            File file = new File(Constants.LOG_DIR + localDate);
             if (!file.exists()) {
-                file.createNewFile();
+                File directory = new File(Constants.LOG_DIR);
+                if (!directory.exists()) {
+                    directory.mkdir();
+                    file.getParentFile().mkdir();
+                    file.createNewFile();
+                } else {
+                    file.createNewFile();
+                }
             }
 
-            FileOutputStream writer = new FileOutputStream(LOG_DIR + localDate);
+            FileOutputStream writer = new FileOutputStream(Constants.LOG_DIR + localDate);
             writer.write((log).getBytes());
             writer.close();
         } catch (IOException e) {

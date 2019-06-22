@@ -17,19 +17,16 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
     public static WiniumDriver hpsDriver;
     public static String hsscpPath = null;
 
-    private long sleepingDuration = 1000;
-
     public String runHostPostShield(String hsscpPath) {
         try {
             this.hsscpPath = hsscpPath;
             DesktopOptions option = new DesktopOptions();
             option.setApplicationPath(hsscpPath);
             hpsDriver = new WiniumDriver(new URL(Constants.HTTP_LOCALHOST_9999), option);
-            Thread.sleep(sleepingDuration * 3);
+            Thread.sleep(Constants.sleepingDuration * 3);
             WebElement stopElement = null;
             WebElement startElement = null;
-            int time = 0;
-            if (checkStart(startElement, time)) return Constants.SUCCESS;
+            if (checkStart(startElement)) return Constants.SUCCESS;
             try {
                 System.out.println("Disconnect Hostspost!");
                 stopElement = hpsDriver.findElement(By.xpath(DISCONNECT_BUTTON));
@@ -40,11 +37,10 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
             System.out.println("Disconnect Hostspost stop!");
             if (stopElement != null) {
                 stopElement.click();
-                Thread.sleep(sleepingDuration);
+                Thread.sleep(Constants.sleepingDuration);
             }
-            time = 0;
             System.out.println("Connect Hostspost!");
-            if (checkStart(startElement, time)) return Constants.SUCCESS;
+            if (checkStart(startElement)) return Constants.SUCCESS;
             return Constants.FAIL;
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,7 +50,8 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
 
     }
 
-    private boolean checkStart(WebElement startElement, int time) throws InterruptedException {
+    private boolean checkStart(WebElement startElement) throws InterruptedException {
+        int time = 0;
         while (time < Constants.WAITING_TIME) {
             try {
                 startElement = hpsDriver.findElement(By.xpath(CONNECTION_BUTTON));
@@ -66,7 +63,8 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
             if (startElement != null) {
                 return true;
             }
-            Thread.sleep(sleepingDuration);
+            Thread.sleep(Constants.sleepingDuration);
+            time++;
         }
         return false;
     }
@@ -87,7 +85,7 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
                 if (stopElement != null) {
                     return Constants.SUCCESS;
                 }
-                Thread.sleep(sleepingDuration);
+                Thread.sleep(Constants.sleepingDuration);
             }
         } catch (NoSuchElementException e) {
             return e.getMessage();
@@ -105,9 +103,9 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
 
             System.out.println("Stop Hostspost start!");
             WebElement stopElement = hpsDriver.findElement(By.xpath(DISCONNECT_BUTTON));
-            Thread.sleep(sleepingDuration);
+            Thread.sleep(Constants.sleepingDuration);
             stopElement.click();
-            Thread.sleep(sleepingDuration);
+            Thread.sleep(Constants.sleepingDuration);
             int time = 0;
             WebElement startElement = null;
             while (time < Constants.WAITING_TIME) {
@@ -121,7 +119,7 @@ public class HostPostShieldServiceImpl implements HostPostShieldService {
                 if (startElement != null) {
                     return Constants.SUCCESS;
                 }
-                Thread.sleep(sleepingDuration);
+                Thread.sleep(Constants.sleepingDuration);
             }
             return Constants.FAIL;
         } catch (Exception e) {
